@@ -1,6 +1,5 @@
 # AI-Based-Smart-city-complaint-management-system
-# 🏙️ — Smart City AI Complaint Management System
-is an intelligent desktop solution designed to bridge the gap between citizens and urban administration. Using Machine Learning, the system automatically categorizes public grievances and assigns priority levels to ensure urgent issues are addressed first.
+This is an intelligent desktop solution designed to bridge the gap between citizens and urban administration. Using Machine Learning, the system automatically categorizes public grievances and assigns priority levels to ensure urgent issues are addressed first.
 
 ## 🚀 Key Features
 * **AI Auto-Classification:** Automatically detects if a complaint belongs to *Water, Sanitation, Electricity, or Roads* using NLP.

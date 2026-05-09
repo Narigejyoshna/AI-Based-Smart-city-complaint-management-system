@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart City AI Complaint Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container { width: 100%; max-width: 640px; }
+
+        .portal-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 40px;
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.7s ease-out;
+            color: #e0e0e0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { text-align: center; margin-bottom: 28px; }
+        .header h1 {
+            font-size: 28px; color: #ffffff; margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .header p { color: #aab4c8; font-size: 14px; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+        .feature {
+            text-align: center; padding: 14px 10px;
+            background: rgba(102,126,234,0.12);
+            border: 1px solid rgba(102,126,234,0.25);
+            border-radius: 14px;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .feature:hover { transform: translateY(-4px); background: rgba(102,126,234,0.22); }
+        .feature i { font-size: 22px; display: block; margin-bottom: 6px; }
+        .feature span { font-size: 11px; color: #c0c8dc; font-weight: 500; }
+
+        /* Step label */
+        .step-label {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: #c0c8dc;
+            margin-bottom: 8px;
+        }
+        .step-num {
+            width: 22px; height: 22px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: white; font-weight: 700; flex-shrink: 0;
+        }
+
+        .input-group { margin-bottom: 18px; }
+
+        textarea {
+            width: 100%; height: 140px; padding: 14px;
+            border: 1.5px solid rgba(102,126,234,0.35);
+            border-radius: 14px; font-size: 14px; font-family: inherit;
+            resize: vertical; transition: all 0.3s;
+            background: rgba(255,255,255,0.06); color: #e8eaf0;
+        }
+        textarea::placeholder { color: #7a85a0; }
+        textarea:focus {
+            border-color: #667eea; outline: none;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.18);
+            background: rgba(255,255,255,0.09);
+        }
+
+        /* Voice section */
+        .voice-section {
+            background: rgba(102,126,234,0.08);
+            border: 1px solid rgba(102,126,234,0.2);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+        }
+        .voice-section-title { font-size: 13px; color: #aab4c8; margin-bottom: 10px; font-weight: 500; }
+        .voice-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+        #voiceBtn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        #voiceBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,87,108,0.35); }
+        #voiceBtn.listening {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            animation: pulseRed 1s infinite;
+        }
+        @keyframes pulseRed {
+            0%,100% { box-shadow: 0 0 8px rgba(255,65,108,0.5); }
+            50%      { box-shadow: 0 0 20px rgba(255,65,108,0.9); }
+        }
+        #voiceStatus { font-size: 12px; color: #9aa4bb; flex: 1; }
+        #voiceStatus.active { color: #66d9a8; }
+
+        .lang-select {
+            padding: 7px 10px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; color: #e0e0e0; font-size: 13px; cursor: pointer;
+        }
+
+        /* ── Location section — hidden until user types ── */
+        .location-section {
+            display: none;
+            margin-bottom: 18px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .location-hint {
+            font-size: 12px; color: #6a7490;
+            margin-bottom: 8px;
+            display: flex; align-items: flex-start; gap: 6px;
+            line-height: 1.5;
+        }
+
+        .location-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 13px; color: #9aa4bb;
+            flex-wrap: wrap;
+            transition: all 0.4s;
+        }
+        .location-row.detecting {
+            border-color: rgba(255,179,71,0.35);
+            background: rgba(255,179,71,0.05);
+        }
+        .location-row.found {
+            border-color: rgba(63,185,80,0.4);
+            background: rgba(63,185,80,0.06);
+            color: #3fb950;
+        }
+        .location-row.failed {
+            border-color: rgba(248,81,73,0.3);
+            background: rgba(248,81,73,0.05);
+            color: #f85149;
+        }
+
+        #detectBtn {
+            padding: 6px 14px;
+            background: rgba(102,126,234,0.2);
+            border: 1px solid rgba(102,126,234,0.4);
+            border-radius: 8px;
+            color: #99aaff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        #detectBtn:hover { background: rgba(102,126,234,0.35); }
+        #detectBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Embedded map ── */
+        #mapContainer {
+            display: none;
+            margin-top: 10px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(88,166,255,0.25);
+            position: relative;
+        }
+        #mapIframe {
+            width: 100%;
+            height: 210px;
+            border: none;
+            display: block;
+        }
+        .map-open-btn {
+            position: absolute;
+            bottom: 10px; right: 10px;
+            padding: 6px 14px;
+            background: rgba(10,14,30,0.88);
+            border: 1px solid rgba(88,166,255,0.45);
+            border-radius: 8px;
+            color: #58a6ff;
+            font-size: 12px;
+            text-decoration: none;
+            backdrop-filter: blur(6px);
+            transition: background 0.25s;
+            font-weight: 500;
+        }
+        .map-open-btn:hover { background: rgba(88,166,255,0.22); }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 14px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-bottom: 18px;
+        }
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+        }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .quick-tips {
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px; padding: 14px 18px; margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .quick-tips h3 {
+            color: #c0c8dc; font-size: 14px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .tips-list { list-style: none; }
+        .tips-list li {
+            color: #8891a8; font-size: 12px; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .footer {
+            text-align: center; margin-top: 22px;
+            color: rgba(255,255,255,0.4); font-size: 13px;
+        }
+        .footer a {
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            margin: 0 8px; transition: color 0.3s;
+        }
+        .footer a:hover { color: white; }
+
+        @media (max-width: 480px) {
+            .portal-card { padding: 24px; }
+            .features { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="portal-card">
+        <div class="header">
+            <h1>🏙️ Smart City Portal</h1>
+            <p>Report issues instantly • AI-powered classification • Real-time tracking</p>
+        </div>
+
+        <div class="features">
+            <div class="feature"><i>🔍</i><span>Auto Categorize</span></div>
+            <div class="feature"><i>⚡</i><span>Priority Detection</span></div>
+            <div class="feature"><i>🔄</i><span>Real-time Tracking</span></div>
+        </div>
+
+        <form action="/submit" method="post" id="complaintForm">
+            <input type="hidden" name="form_token" id="formToken">
+            <input type="hidden" name="latitude"   id="latitude">
+            <input type="hidden" name="longitude"  id="longitude">
+
+            <!-- STEP 1: Description -->
+            <div class="input-group">
+                <div class="step-label">
+                    <span class="step-num">1</span>
+                    Describe your issue in detail
+                </div>
+                <textarea
+                    id="complaint"
+                    name="complaint"
+                    placeholder="Example: There is a large pothole near Gandhi Nagar bus stop causing vehicle damage and traffic delays..."
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Voice Input -->
+            <div class="voice-section">
+                <div class="voice-section-title">🎤 Or use voice input (optional)</div>
+                <div class="voice-controls">
+                    <button type="button" id="voiceBtn" onclick="toggleVoice()">🎤 Start Recording</button>
+                    <select class="lang-select" id="voiceLang">
+                        <option value="en-IN">English (India)</option>
+                        <option value="en-US">English (US)</option>
+                        <option value="hi-IN">Hindi</option>
+                        <option value="te-IN">Telugu</option>
+                        <option value="ta-IN">Tamil</option>
+                        <option value="kn-IN">Kannada</option>
+                        <option value="mr-IN">Marathi</option>
+                    </select>
+                    <span id="voiceStatus">Click to start speaking</span>
+                </div>
+            </div>
+
+            <!-- STEP 2: Location — revealed after typing -->
+            <div class="location-section" id="locationSection">
+                <div class="step-label">
+                    <span class="step-num">2</span>
+                    Confirm your GPS location
+                </div>
+                <div class="location-hint">
+                    ℹ️ Your location helps pinpoint the issue on the map so authorities can reach the exact spot faster.
+                </div>
+
+                <div class="location-row" id="locationRow">
+                    <span>📡</span>
+                    <span id="locationText">Location not detected yet</span>
+                    <button type="button" id="detectBtn" onclick="detectLocation()">📍 Detect My Location</button>
+                </div>
+
+                <!-- Map appears here after GPS is captured -->
+                <div id="mapContainer">
+                    <iframe id="mapIframe" src="" allowfullscreen loading="lazy" title="Your location"></iframe>
+                    <a id="mapOpenBtn" href="#" target="_blank" class="map-open-btn">🗺️ Open in Google Maps</a>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <span>📤</span> Submit Complaint
+            </button>
+        </form>
+
+        <div class="quick-tips">
+            <h3>💡 Quick Tips</h3>
+            <ul class="tips-list">
+                <li>✓ Mention nearby landmarks in your description</li>
+                <li>✓ Include any safety or health concerns</li>
+                <li>✓ Allow location access for accurate mapping</li>
+                <li>✓ Describe urgency — it affects priority</li>
+            </ul>
+        </div>
+
+        <div style="text-align:center; margin-top:18px;">
+            <a href="/track" style="color:#99aaff; text-decoration:none; font-weight:500; font-size:14px;">
+                🔎 Track Existing Complaint →
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>AI Powered Smart Governance System © 2026</span><br>
+        <a href="/admin/login">Admin</a> •
+        <a href="#">Privacy</a> •
+        <a href="#">Terms</a>
+    </div>
+</div>
+
+<script>
+    // ── Unique token to prevent double-submit ──
+    document.getElementById('formToken').value =
+        'tk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+    // ── Show location section after user types complaint ──
+    let typingTimer = null;
+    const textarea    = document.getElementById('complaint');
+    const locSection  = document.getElementById('locationSection');
+
+    function revealLocation() {
+        if (locSection.style.display !== 'block' && textarea.value.trim().length >= 10) {
+            locSection.style.display = 'block';
+            setTimeout(function () {
+                locSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+    }
+
+    textarea.addEventListener('input', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(revealLocation, 1200); // 1.2s after user stops typing
+    });
+
+    // ── GPS Detection ──
+    function detectLocation() {
+        const btn = document.getElementById('detectBtn');
+        const row = document.getElementById('locationRow');
+        const txt = document.getElementById('locationText');
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Detecting...';
+        row.className = 'location-row detecting';
+        txt.textContent = 'Accessing GPS...';
+
+        if (!navigator.geolocation) {
+            row.className = 'location-row failed';
+            txt.textContent = '❌ Geolocation not supported by your browser.';
+            btn.disabled = false;
+            btn.textContent = '📍 Detect My Location';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                document.getElementById('latitude').value  = lat;
+                document.getElementById('longitude').value = lon;
+
+                row.className = 'location-row found';
+                txt.textContent = '✅ Captured: ' + lat.toFixed(5) + ', ' + lon.toFixed(5);
+                btn.textContent = '🔄 Re-detect';
+                btn.disabled = false;
+
+                showMap(lat, lon);
+            },
+            function () {
+                row.className = 'location-row failed';
+                txt.textContent = '❌ Access denied. Please allow location in browser settings.';
+                btn.disabled = false;
+                btn.textContent = '📍 Try Again';
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
+    }
+
+    // ── Render embedded map (OpenStreetMap — no API key needed) ──
+    function showMap(lat, lon) {
+        const container = document.getElementById('mapContainer');
+        const iframe    = document.getElementById('mapIframe');
+        const openBtn   = document.getElementById('mapOpenBtn');
+
+        // OpenStreetMap embed — works everywhere without API key
+        var delta = 0.006;
+        var embedUrl = 'https://www.openstreetmap.org/export/embed.html'
+            + '?bbox='   + (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta)
+            + '&layer=mapnik'
+            + '&marker=' + lat + ',' + lon;
+
+        iframe.src    = embedUrl;
+        openBtn.href  = 'https://www.google.com/maps?q=' + lat + ',' + lon;
+
+        container.style.display = 'block';
+        setTimeout(function () {
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 400);
+    }
+
+    // ── Voice Input ──
+    var recognition = null;
+    var isListening = false;
+
+    function toggleVoice() {
+        isListening ? stopVoice() : startVoice();
+    }
+
+    function startVoice() {
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+            alert('Voice input needs Chrome or Edge browser.');
+            return;
+        }
+        recognition = new SR();
+        recognition.lang = document.getElementById('voiceLang').value;
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        var btn    = document.getElementById('voiceBtn');
+        var status = document.getElementById('voiceStatus');
+
+        recognition.onstart = function () {
+            isListening = true;
+            btn.classList.add('listening');
+            btn.innerHTML = '⏹ Stop Recording';
+            status.classList.add('active');
+            status.textContent = '🔴 Listening... speak now';
+        };
+
+        recognition.onresult = function (event) {
+            var finalText = '', interimText = '';
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) finalText   += event.results[i][0].transcript + ' ';
+                else                          interimText += event.results[i][0].transcript;
+            }
+            if (finalText) textarea.value += finalText;
+            status.textContent = interimText ? '💬 "' + interimText + '"' : '🔴 Listening...';
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(revealLocation, 800);
+        };
+
+        recognition.onerror = function (event) {
+            status.textContent = 'Error: ' + event.error;
+            status.classList.remove('active');
+            stopVoice();
+        };
+
+        recognition.onend = function () { if (isListening) recognition.start(); };
+        recognition.start();
+    }
+
+    function stopVoice() {
+        isListening = false;
+        if (recognition) recognition.stop();
+        var btn    = document.getElementById('voiceBtn');
+        var status = document.getElementById('voiceStatus');
+        btn.classList.remove('listening');
+        btn.innerHTML = '🎤 Start Recording';
+        status.classList.remove('active');
+        status.textContent = 'Recording stopped. Review your text above.';
+    }
+
+    // ── Double-submit prevention ──
+    var formSubmitted = false;
+    document.getElementById('complaintForm').addEventListener('submit', function (e) {
+        if (textarea.value.trim().length < 10) {
+            e.preventDefault();
+            alert('Please describe your complaint in more detail (at least 10 characters).');
+            return;
+        }
+        if (formSubmitted) {
+            e.preventDefault();
+            alert('Already submitting, please wait.');
+            return;
+        }
+        formSubmitted = true;
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Submitting...';
+    });
+</script>
+</body>
+</html>

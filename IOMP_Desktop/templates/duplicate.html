@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Duplicate Complaint - Smart City</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(248,81,73,0.25);
+            padding: 48px 40px;
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 460px;
+            color: #e0e0e0;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .warn-icon {
+            width: 85px; height: 85px;
+            background: rgba(248,81,73,0.15);
+            border: 2px solid rgba(248,81,73,0.4);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(248,81,73,0.3); }
+            50%      { box-shadow: 0 0 0 12px rgba(248,81,73,0); }
+        }
+
+        h2 {
+            color: #f85149;
+            font-size: 24px;
+            margin-bottom: 14px;
+        }
+
+        .desc {
+            color: #9aa4bb;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .info-box {
+            background: rgba(88,166,255,0.07);
+            border: 1px solid rgba(88,166,255,0.2);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 13px;
+            color: #7a90bb;
+            margin-bottom: 28px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .info-box strong { color: #58a6ff; }
+
+        .btn-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-track {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-track:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+
+        .btn-home {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #c0c8dc;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 24px;
+            color: rgba(255,255,255,0.25);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="warn-icon">⚠️</div>
+
+    <h2>Duplicate Complaint Detected</h2>
+
+    <p class="desc">
+        A very similar complaint has already been submitted for this area.<br>
+        The issue is already being tracked in our system.
+    </p>
+
+    <div class="info-box">
+        <strong>💡 Why did this happen?</strong><br>
+        Our AI detected that your complaint closely matches an existing one at the same location. 
+        This helps us avoid duplicate work orders and ensures faster resolution for everyone.
+        <br><br>
+        <strong>📍 Different location?</strong><br>
+        If your issue is at a different place, please go back and make sure your GPS location 
+        was detected correctly before submitting again.
+    </div>
+
+    <div class="btn-row">
+        <a href="/track" class="btn btn-track">🔍 Track Existing Complaint</a>
+        <a href="/"      class="btn btn-home">🏠 Back to Home</a>
+    </div>
+</div>
+
+<div class="footer">AI Powered Smart Governance System © 2026</div>
+
+</body>
+</html>

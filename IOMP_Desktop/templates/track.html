@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Complaint - Smart City</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container { width: 100%; max-width: 600px; }
+
+        .card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 40px;
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: fadeIn 0.6s ease-in-out;
+            color: #e0e0e0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 28px;
+            color: #ffffff;
+            font-size: 26px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .search-box { margin-bottom: 14px; }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: 1.5px solid rgba(102,126,234,0.35);
+            font-size: 16px;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.06);
+            color: #e8eaf0;
+            font-family: inherit;
+        }
+
+        input[type="text"]::placeholder { color: #5a6278; }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.18);
+        }
+
+        .btn-track {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-track:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+        }
+
+        /* ── Result card ── */
+        .result {
+            margin-top: 28px;
+            text-align: left;
+            padding: 24px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tracking-id {
+            font-size: 22px;
+            font-weight: bold;
+            color: #99aaff;
+            background: rgba(102,126,234,0.12);
+            border: 1px solid rgba(102,126,234,0.3);
+            padding: 7px 16px;
+            border-radius: 10px;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .status-badge {
+            padding: 7px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-pending     { background: rgba(255,179,71,0.15);  color: #ffb347; border: 1px solid rgba(255,179,71,0.3); }
+        .status-in-progress { background: rgba(88,166,255,0.15);  color: #58a6ff; border: 1px solid rgba(88,166,255,0.3); }
+        .status-resolved    { background: rgba(63,185,80,0.15);   color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+
+        .complaint-detail { margin-bottom: 16px; }
+
+        .detail-label {
+            font-size: 11px;
+            color: #6a7490;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: #c9d1d9;
+            font-weight: 500;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+        }
+
+        .consequences-box {
+            background: rgba(255,193,7,0.07);
+            border-left: 3px solid #ffc107;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+
+        .consequences-box .detail-label { color: #d4a017; }
+        .consequences-box .detail-value {
+            background: transparent;
+            border: none;
+            padding: 4px 0 0;
+            color: #e0c060;
+            font-size: 14px;
+        }
+
+        /* Location row */
+        .location-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px;
+            background: rgba(88,166,255,0.06);
+            border: 1px solid rgba(88,166,255,0.2);
+            border-radius: 10px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #7a90bb;
+            flex-wrap: wrap;
+        }
+
+        .map-link {
+            padding: 4px 12px;
+            background: rgba(88,166,255,0.15);
+            border: 1px solid rgba(88,166,255,0.35);
+            border-radius: 7px;
+            color: #58a6ff;
+            font-size: 12px;
+            text-decoration: none;
+            transition: background 0.25s;
+        }
+
+        .map-link:hover { background: rgba(88,166,255,0.28); }
+
+        /* Progress steps */
+        .progress-wrap { margin-top: 20px; }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #3fb950);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .step {
+            text-align: center;
+            flex: 1;
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        .step.active { color: #99aaff; font-weight: bold; }
+        .step.done   { color: #3fb950; font-weight: bold; }
+
+        /* Error */
+        .error {
+            color: #f85149;
+            margin-top: 20px;
+            padding: 14px;
+            background: rgba(248,81,73,0.08);
+            border: 1px solid rgba(248,81,73,0.25);
+            border-radius: 10px;
+            font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px;
+        }
+
+        .home-link {
+            display: inline-block;
+            margin-top: 22px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .home-link:hover { color: #99aaff; }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="card">
+        <h2>🔍 Track Your Complaint</h2>
+
+        <form method="POST" action="/track">
+            <div class="search-box">
+                <input type="text" name="tracking_id"
+                       placeholder="Enter Tracking ID (e.g., A1B2C3D4)"
+                       required maxlength="8"
+                       style="text-transform:uppercase;">
+            </div>
+            <button type="submit" class="btn-track">🔎 Track Complaint</button>
+        </form>
+
+        {% if complaint %}
+        <div class="result">
+            <div class="status-header">
+                <span class="tracking-id">{{ complaint[1] }}</span>
+                <span class="status-badge status-{{ complaint[8].lower().replace(' ', '-') }}">
+                    {{ complaint[8] }}
+                </span>
+            </div>
+
+            <div class="complaint-detail">
+                <div class="detail-label">Complaint Description</div>
+                <div class="detail-value">{{ complaint[2] }}</div>
+            </div>
+
+            <div class="complaint-detail">
+                <div class="detail-label">Category</div>
+                <div class="detail-value">🏷️ {{ complaint[3] }}</div>
+            </div>
+
+            <div class="complaint-detail">
+                <div class="detail-label">Priority Level</div>
+                <div class="detail-value">
+                    {% if complaint[4] == 'CRITICAL' %}🔴{% elif complaint[4] == 'HIGH' %}🟠{% else %}🟢{% endif %}
+                    {{ complaint[4] }}
+                </div>
+            </div>
+
+            {% if complaint[5] %}
+            <div class="consequences-box">
+                <div class="detail-label">⚠️ Potential Consequences</div>
+                <div class="detail-value">{{ complaint[5] }}</div>
+            </div>
+            {% endif %}
+
+            {% if complaint[6] and complaint[7] %}
+            <div class="location-row">
+                <span>📍</span>
+                <span>{{ complaint[6] }}, {{ complaint[7] }}</span>
+                <a class="map-link"
+                   href="https://www.google.com/maps?q={{ complaint[6] }},{{ complaint[7] }}"
+                   target="_blank">🗺️ View on Map</a>
+            </div>
+            {% endif %}
+
+            <!-- Progress tracker -->
+            <div class="progress-wrap">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-steps">
+                    <span class="step done">📝 Reported</span>
+                    <span class="step {% if complaint[8] == 'In Progress' %}active{% elif complaint[8] == 'Resolved' %}done{% endif %}">
+                        🔧 In Progress
+                    </span>
+                    <span class="step {% if complaint[8] == 'Resolved' %}done{% endif %}">
+                        ✅ Resolved
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const status = "{{ complaint[8] }}";
+            const fill   = document.getElementById('progressFill');
+            if (status === 'Pending')     fill.style.width = '15%';
+            else if (status === 'In Progress') fill.style.width = '55%';
+            else if (status === 'Resolved')    fill.style.width = '100%';
+        </script>
+
+        {% elif complaint is not none %}
+        <div class="error">
+            <span>❌</span>
+            <span>No complaint found with that Tracking ID. Please check and try again.</span>
+        </div>
+        {% endif %}
+
+        <a href="/" class="home-link">← Back to Home</a>
+    </div>
+
+    <div class="footer">AI Powered Smart Governance System © 2026</div>
+</div>
+</body>
+</html>
